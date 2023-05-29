@@ -2,7 +2,7 @@
 
 ## Description
 
-Route-Me is a lightweight and flexible PHP router package for creating RESTful APIs. It supports route parameters, middleware, and PSR-7 request/response handling. Route-Me is built using the [PSR-7 HTTP message interfaces](https://www.php-fig.org/psr/psr-7/) and can be used with any PSR-7 implementation. It is also framework-agnostic and can be used with any PHP framework or standalone application. Route-Me is developed and maintained by [Benson Osei-Mensah]('https://github/bensonOSei').
+Route-Me is a lightweight and flexible PHP router package for creating RESTful APIs. It supports route parameters, middleware, and PSR-7 request/response handling. Route-Me is built using the [PSR-7 HTTP message interfaces](https://www.php-fig.org/psr/psr-7/) and can be used with any PSR-7 implementation. It is also framework-agnostic and can be used with any PHP framework or standalone application. Route-Me is developed and maintained by [Benson Osei-Mensah](https://github/bensonOSei).
 
 ## Installation
 
@@ -99,7 +99,7 @@ Contributions are welcome! To contribute to Route-Me, follow these steps:
     ```
 
 3. Make your changes.
-4. Commit your changes and push them to your branch. Make sure to add a clear commit message and include any relevant documentation updates. Since Route-Me follows the [PSR-2 coding standards](https://www.php-fig.org/psr/psr-2/), please ensure that your code adheres to these standards. If you are not sure, you can use the [PHP Coding Standards Fixer]('https://cs.symfony.com/')
+4. Commit your changes and push them to your branch. Make sure to add a clear commit message and include any relevant documentation updates. Since Route-Me follows the [PSR-2 coding standards](https://www.php-fig.org/psr/psr-2/), please ensure that your code adheres to these standards. If you are not sure, you can use the [PHP Coding Standards Fixer](https://cs.symfony.com/)
 
     ``` bash
     git add .
@@ -112,8 +112,8 @@ Please ensure that you adhere to the coding standards and write clear commit mes
 
 ## License
 
-Route-Me is open-source software released under the MIT License (link-to-license).
+Route-Me is open-source software released under the MIT License. See [LICENSE](./LICENSE) for details.
 
 ## Author
 
-Route-Me is developed and maintained by [Benson Ose-Mensah]('https://github.com/bensonOSei').
+Route-Me is developed and maintained by [Benson Ose-Mensah](https://github.com/bensonOSei).
