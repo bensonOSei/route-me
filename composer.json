@@ -1,0 +1,19 @@
+{
+    "name": "benson/route-me",
+    "description": "A basic router for REST APIs with all campatible with all RESTFUL verbs",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Benson\\RouteMe\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "bensonOSei",
+            "email": "kbenson643@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {}
+}
