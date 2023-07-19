@@ -4,13 +4,27 @@ declare(strict_types=1);
 
 namespace Benson\RouteMe\Http;
 
+use Benson\RouteMe\Handlers\ErrorHandler;
+use Benson\RouteMe\Handlers\JsonHandler;
 use Benson\RouteMe\Traits\JsonRequestHandlerTrait;
+use Closure;
 
+/**
+ * The Router class. This class handles the routing of the application.
+ * 
+ * @package Benson\RouteMe\Http
+ * @since 1.0.0
+ */
 class Router
 {
     use JsonRequestHandlerTrait;
     private $routes = [];
-    private $middlewares = [];
+    private $middleware = [];
+
+    public function __construct()
+    {
+        header('Content-type: application/json');
+    }
 
     /**
      * Add a route to the router.
@@ -18,18 +32,138 @@ class Router
      * @param string   $method   The HTTP method (GET, POST, etc.).
      * @param string   $pattern  The URL pattern to match.
      * @param callable $callback The callback function to execute for the route.
-     * @return void
+     * @return self Returns the Router instance.
      */
-    public function addRoute(string $method, string $pattern, $callback, array $middlewares = [])
+    public function addRoute(string $method, string $pattern, $callback, array $middleware = []): self
     {
 
         $this->routes[] = [
             'method' => $method,
             'pattern' => $pattern,
             'callback' => $callback,
-            'middlewares' => $middlewares
+            'middleware' => $middleware
         ];
+
+        return $this;
     }
+
+
+
+    /**
+     * Add a route that responds to the GET HTTP method
+     * 
+     * @param string $pattern The URL pattern to match.
+     * @param callable $callback The callback function to execute for the route.
+     * @return self Returns the Router instance.
+     */
+    public function get(string $pattern, Closure $callback, array $middleware = [])
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'GET') $this->handleNotFound();        
+
+        return $this->addRoute('GET', $pattern, $callback, $middleware);
+    }
+
+
+
+
+    /**
+     * Add a route that responds to the POST HTTP method.
+     * 
+     * @param string   $pattern  The URL pattern to match.
+     * @param callable $callback The callback function to execute for the route.
+     * @return self Returns the Router instance.
+     */
+    public function post(string $pattern, $callback, array $middleware = [])
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') $this->handleNotFound();
+
+        return $this->addRoute('POST', $pattern, $callback, $middleware);
+    }
+
+
+
+
+    /**
+     * Add a route that responds to the PUT HTTP method.
+     * 
+     * @param string   $pattern  The URL pattern to match.
+     * @param callable $callback The callback function to execute for the route.
+     * @return self Returns the Router instance.
+     */
+    public function put(string $pattern,Closure $callback, array $middleware = [])
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'PUT') $this->handleNotFound();
+
+        return $this->addRoute('PUT', $pattern, $callback, $middleware);
+    }
+
+
+
+    /**
+     * Add a route that responds to the DELETE HTTP method.
+     * 
+     * @param string   $pattern  The URL pattern to match.
+     * @param callable $callback The callback function to execute for the route.
+     * @return self Returns the Router instance.
+     */
+    public function delete(string $pattern, $callback, array $middleware = [])
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'DELETE') $this->handleNotFound();
+
+        return $this->addRoute('DELETE', $pattern, $callback, $middleware);
+    }
+
+
+
+
+    /**
+     * Add a route that responds to the PATCH HTTP method.
+     * 
+     * @param string   $pattern  The URL pattern to match.
+     * @param callable $callback The callback function to execute for the route.
+     * @return self Returns the Router instance.
+     */
+    public function patch(string $pattern, $callback, array $middleware = [])
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'PATCH') $this->handleNotFound();
+
+        return $this->addRoute('PATCH', $pattern, $callback, $middleware);
+    }
+
+
+
+
+    /**
+     * Add a route that responds to the OPTIONS HTTP method.
+     * 
+     * @param string   $pattern  The URL pattern to match.
+     * @param callable $callback The callback function to execute for the route.
+     * @return self Returns the Router instance.
+     */
+    public function options(string $pattern, $callback, array $middleware = [])
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'OPTIONS') $this->handleNotFound();
+
+        return $this->addRoute('OPTIONS', $pattern, $callback, $middleware);
+    }
+
+
+
+    /**
+     * Add a route that responds to any HTTP method.
+     * 
+     * @param string   $pattern  The URL pattern to match.
+     * @param callable $callback The callback function to execute for the route.
+     * @return self Returns the Router instance.
+     */
+    public function any(string $pattern, $callback, array $middleware = [])
+    {
+        return $this->addRoute('GET|POST|PUT|DELETE|PATCH|OPTIONS', $pattern, $callback, $middleware);
+    }
+
+
+
+
 
     /**
      * Handle an incoming request.
@@ -38,16 +172,19 @@ class Router
      * @param string $url    The URL of the request.
      * @return void 
      */
-    public function handleRequest(string $method, string $url): void
-    {
+    public function run(): void
+    {   
+        $method = $_SERVER['REQUEST_METHOD'];
+        $url = $_SERVER['REQUEST_URI'];
+
         foreach ($this->routes as $route) {
             $params = []; // Initialize $params array
 
             if ($route['method'] === $method && $this->matchRoutePattern($route['pattern'], $url, $params)) {
                 try {
 
-                    if (count($route['middlewares']) > 0) {
-                        $this->applyMiddleware($route['middlewares']);
+                    if (count($route['middleware']) > 0) {
+                        $this->applyMiddleware($route['middleware']);
                     }
                     // Call the route callback with the matched parameters
                     if (is_string($route['callback']) && strpos($route['callback'], '@') !== false) {
@@ -60,51 +197,62 @@ class Router
 
                     return;
                 } catch (\Throwable $e) {
-                    $this->handleError($e);
+                    ErrorHandler::handle($e);
                     return;
                 }
             }
         }
 
         // No matching route found, handle 404 Not Found
-        $this->handleNotFound();
+        // $this->handleNotFound();
     }
+
+
+
+
 
     /**
      * Handle a 404 Not Found scenario.
      *
-     * @return void
      */
-    public function handleNotFound(): void
+    public function handleNotFound()
     {
-        // Custom logic for handling 404 Not Found
-        header('HTTP/1.0 404 Not Found');
-        echo "404 Not Found";
-    }
 
-    /**
-     * Handle an error scenario.
-     *
-     * @param \Throwable $e The exception object.
-     * @return void
-     */
-    public function handleError(\Throwable $e): void
-    {
-        // Custom logic for handling errors
-        // You can log the error, display a friendly error page, etc.
-        // Example: log the error message
-        error_log($e->getMessage());
-
-        // Send an appropriate HTTP response
-        header('HTTP/1.1 500 Internal Server Error');
-        echo $this->jsonSend([
+        JsonHandler::respond([
             'error' => [
-                'message' => $e->getMessage(),
-                'file' => $e->getFile(),
-                'line' => $e->getLine()
+                'message' => '404 Not Found',
             ]
-        ], 500);
+        ]);
     }
+
+
+
+
+
+
+    // /**
+    //  * Handle an error scenario.
+    //  *
+    //  * @param \Throwable $e The exception object.
+    //  * @return void
+    //  */
+    // public function handleError(\Throwable $e): void
+    // {
+    //     // Custom logic for handling errors
+    //     // You can log the error, display a friendly error page, etc.
+    //     // Example: log the error message
+    //     error_log($e->getMessage());
+
+    //     // Send an appropriate HTTP response
+    //     header('HTTP/1.1 500 Internal Server Error');
+    //     echo $this->jsonSend([
+    //         'error' => [
+    //             'message' => $e->getMessage(),
+    //             'file' => $e->getFile(),
+    //             'line' => $e->getLine()
+    //         ]
+    //     ], 500);
+    // }
 
     /**
      * Add middleware to the router.
@@ -114,8 +262,8 @@ class Router
      */
     public function withMiddleware($middleware): self
     {
-        $this->middlewares[] = $middleware;
-        $this->applyMiddleware($this->middlewares);
+        $this->middleware[] = $middleware;
+        $this->applyMiddleware($this->middleware);
         return $this;
     }
 
@@ -126,9 +274,9 @@ class Router
      *
      * @return void
      */
-    private function applyMiddleware(array $middlewares): void
+    private function applyMiddleware(array $middleware): void
     {
-        foreach ($middlewares as $middleware) {
+        foreach ($middleware as $middleware) {
             if (is_string($middleware) && strpos($middleware, '@') !== false) {
                 [$class, $method] = explode('@', $middleware);
                 $middlewareInstance = new $class();

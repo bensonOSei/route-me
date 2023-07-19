@@ -21,6 +21,7 @@ trait JsonRequestHandlerTrait
         if ($exit) {
             exit;
         }
+        
     }
 
     /**
