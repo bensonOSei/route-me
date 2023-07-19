@@ -2,7 +2,7 @@
 
 namespace Benson\RouteMe\Handlers;
 
-class ErrorHandler
+class ErrorHandler extends \Exception
 {
     public static function handle(\Throwable $e, $code = 500): void
     {
