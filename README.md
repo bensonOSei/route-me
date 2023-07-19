@@ -49,7 +49,7 @@ To use Route-Me in your project, follow these steps:
 3. Add routes to the router using the `addRoute()` method:
 
     ```php
-    $router->addRoute('GET', '/users', function () {
+    $router->get('/users', function () {
         // Handle GET request to /users
     });
 
@@ -72,15 +72,15 @@ To use Route-Me in your project, follow these steps:
         // Add middleware to all routes
         $router->withMiddleware('App\Middleware\Authenticate@handle');
 
-    $router->addRoute('POST', '/users', function () {
+    $router->post('/users', function () {
         // Handle POST request to /users
     });
     ```
 
-4. Handle incoming requests by calling the `handleRequest()` method:
+4. Handle incoming requests by calling the `run()` method:
 
     ```php
-    $router->handleRequest($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI']); 
+    $router->run(); 
     ```
 
 <!-- ## API Documentation
