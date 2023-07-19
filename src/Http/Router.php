@@ -58,7 +58,7 @@ class Router
      */
     public function get(string $pattern, Closure $callback, array $middleware = [])
     {
-        if ($_SERVER['REQUEST_METHOD'] !== 'GET') $this->handleNotFound();        
+        if ($_SERVER['REQUEST_METHOD'] !== 'GET') $this->handleNotFound();
 
         return $this->addRoute('GET', $pattern, $callback, $middleware);
     }
@@ -90,7 +90,7 @@ class Router
      * @param callable $callback The callback function to execute for the route.
      * @return self Returns the Router instance.
      */
-    public function put(string $pattern,Closure $callback, array $middleware = [])
+    public function put(string $pattern, $callback, array $middleware = [])
     {
         if ($_SERVER['REQUEST_METHOD'] !== 'PUT') $this->handleNotFound();
 
@@ -158,7 +158,13 @@ class Router
      */
     public function any(string $pattern, $callback, array $middleware = [])
     {
-        return $this->addRoute('GET|POST|PUT|DELETE|PATCH|OPTIONS', $pattern, $callback, $middleware);
+        // check if the request method is supported
+        if (!in_array($_SERVER['REQUEST_METHOD'], ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'])) $this->handleNotFound();
+
+        // get the request method
+        $method = $_SERVER['REQUEST_METHOD'];
+
+        return $this->addRoute($method, $pattern, $callback, $middleware);
     }
 
 
@@ -173,7 +179,7 @@ class Router
      * @return void 
      */
     public function run(): void
-    {   
+    {
         $method = $_SERVER['REQUEST_METHOD'];
         $url = $_SERVER['REQUEST_URI'];
 
@@ -218,42 +224,22 @@ class Router
     public function handleNotFound()
     {
 
-        JsonHandler::respond([
-            'error' => [
-                'message' => '404 Not Found',
-            ]
-        ]);
+        JsonHandler::respond(
+            '404 Not Found',
+        );
+    }
+
+
+    public function getRoutes()
+    {
+        return $this->routes;
     }
 
 
 
 
 
-
-    // /**
-    //  * Handle an error scenario.
-    //  *
-    //  * @param \Throwable $e The exception object.
-    //  * @return void
-    //  */
-    // public function handleError(\Throwable $e): void
-    // {
-    //     // Custom logic for handling errors
-    //     // You can log the error, display a friendly error page, etc.
-    //     // Example: log the error message
-    //     error_log($e->getMessage());
-
-    //     // Send an appropriate HTTP response
-    //     header('HTTP/1.1 500 Internal Server Error');
-    //     echo $this->jsonSend([
-    //         'error' => [
-    //             'message' => $e->getMessage(),
-    //             'file' => $e->getFile(),
-    //             'line' => $e->getLine()
-    //         ]
-    //     ], 500);
-    // }
-
+    
     /**
      * Add middleware to the router.
      *
