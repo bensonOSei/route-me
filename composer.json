@@ -19,9 +19,7 @@
 		"phpunit/phpunit": "^10"
 	},
 	"scripts": {
-		"scripts": {
-		"test": "./vendor/bin/phpunit",
-        "start": "php -S localhost:8000"
-	}
+        "start": "php -S localhost:8000",
+        "test" : "./vendor/bin/phpunit"
 	}
 }
