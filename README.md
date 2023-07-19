@@ -1,4 +1,4 @@
-# benson/my-router
+# benson/router-me
 
 ## Description
 
@@ -9,7 +9,7 @@ Route-Me is a lightweight and flexible PHP router package for creating RESTful A
 To install Route-Me, run the following command in your project directory:
 
 ```bash
-composer require benson/my-router
+composer require benson/router-me
 ```
 
 ## Table of Contents
